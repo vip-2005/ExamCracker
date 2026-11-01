@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXAM CRACKER | India's #1 Secure Mock & PYP Platform</title>
+  
+  <!-- Tailwind CSS & Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- FIREBASE AUTH SDKs (FOR REAL SMS OTP) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col bg-slate-50">
+
+  <!-- TOP GLOBAL NAVBAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 h-16 flex items-center justify-between px-4 lg:px-8">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="showScreen('home')">
+        <div class="w-9 h-9 rounded-lg bg-sky-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
+          ⚡
+        </div>
+        <span class="text-xl font-black tracking-tight text-slate-900">
+          EXAM<span class="text-sky-600">CRACKER</span>
+        </span>
+      </div>
+
+      <div class="hidden md:flex items-center bg-slate-100 rounded-lg px-3 py-2 w-80 border border-slate-200">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2"></i>
+        <input type="text" placeholder="Search target exams, shifts..." class="bg-transparent text-xs w-full focus:outline-none">
+      </div>
+    </div>
+
+    <!-- Student Auth Actions -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold font-mono">
+        <i data-lucide="flame" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+        <span>STREAK: 1 DAY</span>
+      </div>
+      <div id="authActionsContainer"></div>
+    </div>
+  </header>
+
+  <!-- SCREEN 1: HOME CATALOG -->
+  <div id="screen-home" class="flex-1 flex flex-col">
+    <section class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-indigo-900/40">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-sky-500/10 border border-sky-400/30 text-sky-300 text-xs font-bold uppercase tracking-wider font-mono">
+            <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span> Live Account Protected Mode
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            Targeted Mock Series & Official PYP Shifts
+          </h1>
+          <p class="text-sm text-slate-300">
+            Aapka test record, rank aur mistake vault aapke mobile number ke sath secure save rehta hai.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Sidebar Navigation -->
+        <div class="lg:col-span-3 space-y-4">
+          <div class="bg-white border border-slate-200 rounded-2xl p-3 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2 block">Student Desk</span>
+            <button onclick="showScreen('home')" class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-sky-50 text-sky-700">
+              <i data-lucide="layout-grid" class="w-4 h-4 text-sky-600"></i> Explore Exams
+            </button>
+            <button onclick="checkAuthAndShowAttempted()" class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
+              <i data-lucide="history" class="w-4 h-4 text-slate-400"></i> Attempted Tests
+            </button>
+          </div>
+
+          <!-- Category Filters (Defence Included) -->
+          <div class="space-y-1.5" id="categorySidebar">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1 block">Categories</span>
+            
+            <button onclick="filterCategory('all', this)" class="category-btn active w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-3"><i data-lucide="layers" class="w-4 h-4 text-sky-600"></i> All Target Exams</span>
+            </button>
+            
+            <button onclick="filterCategory('ssc', this)" class="category-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-3"><i data-lucide="briefcase" class="w-4 h-4 text-amber-600"></i> SSC Exams</span>
+            </button>
+            
+            <button onclick="filterCategory('railway', this)" class="category-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-3"><i data-lucide="train" class="w-4 h-4 text-rose-600"></i> Railway (RRB)</span>
+            </button>
+            
+            <button onclick="filterCategory('state', this)" class="category-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-3"><i data-lucide="landmark" class="w-4 h-4 text-emerald-600"></i> State / UPSSSC</span>
+            </button>
+            
+            <button onclick="filterCategory('defence', this)" class="category-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-3"><i data-lucide="shield" class="w-4 h-4 text-indigo-600"></i> Defence Exams</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Side: Exam Cards Grid -->
+        <div class="lg:col-span-9 space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <h2 class="text-lg font-extrabold text-slate-900" id="currentSectionTitle">Targeted Exam Series</h2>
+            <span class="text-xs text-slate-500 font-mono" id="cardsCountLabel">0 Exams</span>
+          </div>
+          <div id="examsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- SCREEN 2: DETAILS SCREEN -->
+  <div id="screen-detail" class="hidden flex-1 flex flex-col bg-slate-100/60">
+    <div class="max-w-7xl w-full mx-auto p-4 lg:p-6 space-y-6">
+      <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
+        <button onclick="showScreen('home')" class="hover:text-sky-600 flex items-center gap-1 font-bold text-slate-600">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Catalog
+        </button>
+        <span>/</span>
+        <span id="dtlBreadcrumb">Exam > Detail</span>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-col lg:flex-row justify-between items-start gap-6">
+          <div class="flex items-start gap-5">
+            <div id="dtlIconBox" class="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center text-3xl font-bold shadow-sm flex-shrink-0">
+              🚆
+            </div>
+            <div class="space-y-2">
+              <h1 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight" id="dtlExamTitle">Exam Title</h1>
+              <div class="text-xs text-slate-400 font-medium">Verified Question Bank Deck</div>
+              <div class="flex flex-wrap items-center gap-3 text-xs pt-1">
+                <span class="font-bold text-slate-700 font-mono" id="dtlTestCount">100+ Tests</span>
+                <span class="text-slate-300">•</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 font-mono">100% FREE TESTS</span>
+                <span class="text-slate-300">•</span>
+                <span class="text-sky-600 font-semibold">🌐 English, Hindi</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="GuruAI.speak('Har Har Mahadev Guru! Focus ke sath test attempt karo. Selection nishchit hoga!')" class="px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold flex items-center gap-2">
+            <span>Ask Guru Ji</span> 🔱
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-8 space-y-4">
+          <div class="flex gap-2">
+            <button id="tabMockBtn" onclick="switchPaperType('mock')" class="type-pill px-5 py-2 rounded-xl text-xs font-bold transition">Mock Tests</button>
+            <button id="tabPypBtn" onclick="switchPaperType('pyp')" class="type-pill active px-5 py-2 rounded-xl text-xs font-bold transition">PYPs (Previous Year Papers)</button>
+          </div>
+          <div class="space-y-3" id="papersListContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: ATTEMPTED TESTS HISTORY -->
+  <div id="screen-attempted" class="hidden flex-1 flex flex-col bg-slate-100/60 p-4 lg:p-6">
+    <div class="max-w-5xl w-full mx-auto space-y-6">
+      <div class="flex justify-between items-center border-b pb-4">
+        <div>
+          <button onclick="showScreen('home')" class="text-xs font-bold text-sky-600 hover:underline mb-1 block">← Back to Catalog</button>
+          <h2 class="text-2xl font-black text-slate-900">Your Attempted Mock Tests</h2>
+          <p class="text-xs text-slate-500" id="attemptUserSubtitle">Account-linked performance record</p>
+        </div>
+        <button onclick="clearAttemptHistory()" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold font-mono">
+          Clear My History
+        </button>
+      </div>
+      <div class="space-y-3" id="attemptHistoryContainer"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: TCS-iON TEST RUNNER MODAL -->
+  <div id="testPlayerModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex flex-col justify-center items-center p-4">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white uppercase" id="modalExamName">Official Paper</h3>
+          <span class="text-[10px] text-slate-400 font-mono">TCS Standard Marking (+2.00 / -0.50)</span>
+        </div>
+        <button onclick="closeTestPlayer()" class="text-slate-400 hover:text-white text-xs font-bold">CLOSE ✕</button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-5 flex-1">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 border-b pb-2">
+          <span>QUESTION NO. <strong class="text-slate-900 font-bold" id="qIndex">1</strong> / <span id="qTotal">10</span></span>
+          <span class="text-emerald-600 font-bold">+2.00 / -0.50 Mark</span>
+        </div>
+        <h4 class="text-base font-semibold text-slate-800 leading-relaxed whitespace-pre-line" id="qText"></h4>
+        <div class="space-y-2.5 font-sans" id="modalOptions"></div>
+        <div id="modalExplBox" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
+          <strong class="text-emerald-700 block font-sans font-bold">Official Solution:</strong>
+          <p id="modalExplText" class="leading-relaxed"></p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-3.5 flex items-center justify-between font-mono">
+        <button onclick="closeTestPlayer()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-800">Abort</button>
+        <div class="flex items-center gap-3">
+          <button id="verifyBtn" onclick="verifyActiveAnswer()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold">Submit Answer</button>
+          <button id="nextBtn" onclick="nextModalQuestion()" class="hidden px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">Next Question →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL WITH REAL SMS OTP & NAME SETUP -->
+  <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 border border-slate-200 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="font-extrabold text-base text-slate-900">Student Sign In</h3>
+        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
+      </div>
+
+      <!-- Step 1: Mobile Number Entry -->
+      <div id="authStep1" class="space-y-3">
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Apna 10-digit mobile number enter karein. Aapke phone par official SMS OTP aayega.
+        </p>
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">Mobile Number</label>
+          <div class="flex items-center border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 focus-within:ring-2 focus-within:ring-sky-500 focus-within:bg-white">
+            <span class="text-xs font-bold text-slate-500 mr-2">+91</span>
+            <input type="tel" id="mobileInput" maxlength="10" placeholder="9876543210" class="w-full bg-transparent text-xs font-bold font-mono focus:outline-none">
+          </div>
+        </div>
+        
+        <!-- Recaptcha Container for Firebase -->
+        <div id="recaptcha-container" class="flex justify-center my-2"></div>
+
+        <button onclick="requestOTP()" id="sendOtpBtn" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md">
+          Get Live OTP
+        </button>
+      </div>
+
+      <!-- Step 2: OTP Verification & Student Name Entry -->
+      <div id="authStep2" class="space-y-3 hidden">
+        <p class="text-xs text-slate-500">
+          Mobile number <strong id="otpTargetMobile" class="text-slate-800 font-mono"></strong> par bheja gaya 6-digit OTP enter karein:
+        </p>
+        <input type="text" id="otpEntryInput" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full text-center tracking-widest text-lg font-bold font-mono border border-slate-300 rounded-xl py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
+        
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">Aapka Poora Naam (Name)</label>
+          <input type="text" id="nameInput" placeholder="Jaise: Vishal Yadav" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <button onclick="verifyAndLogin()" id="verifyOtpBtn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
+          Verify & Save Profile
+        </button>
+        <button onclick="resetAuthFlow()" class="w-full text-center text-[11px] text-slate-400 hover:underline font-bold">
+          Change Mobile Number
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- "GURU JI" AI MENTOR WIDGET -->
+  <div class="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+    <div id="guruSpeechBox" class="bg-white border-2 border-amber-300 shadow-xl rounded-2xl p-3.5 max-w-xs mb-2 text-xs text-slate-800 space-y-1.5 transition-all">
+      <div class="flex justify-between items-center">
+        <span class="font-extrabold text-[11px] text-amber-600 font-mono">🔱 GURU JI AI MENTOR</span>
+        <button onclick="GuruAI.dismiss()" class="text-slate-400 hover:text-slate-600 font-bold text-[10px]">✕</button>
+      </div>
+      <p id="guruSpeechText" class="leading-relaxed font-medium">
+        Radhe Radhe Guru! Mobile number se login kar lijiye taaki aapke marks aur mock drills hamesha surakshit rahein!
+      </p>
+    </div>
+    <button onclick="GuruAI.randomTip()" class="w-13 h-13 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-orange-500/30 flex items-center justify-center text-2xl border-2 border-white hover:scale-105 transition-transform" title="Guru Ji se margdarshan lein">
+      🧘‍♂️
+    </button>
+  </div>
+
+  <!-- SCRIPT TAGS -->
+  <script src="data/exams-metadata.js"></script>
+  <script src="data/questions.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/guru-ai.js"></script>
+  <script src="js/test-runner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

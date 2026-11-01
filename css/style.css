@@ -1,0 +1,29 @@
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.category-btn.active {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.category-btn.active svg {
+  color: #ffffff;
+}
+
+.type-pill.active {
+  background-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+}
+
+.type-pill:not(.active) {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
