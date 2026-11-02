@@ -1,11 +1,10 @@
 // ==============================================================
-// GURU JI AI ENGINE (NAME + GURU FORMAT: "VISHAL GURU", "RAJAT GURU")
+// GURU JI 100% LIVE AI (BOYS = "NAME GURU" | GIRLS = "NAME DEVI")
 // ==============================================================
-
-const GOOGLE_API_KEY = "AIzaSyBLkkf-XlGUixUIByiaGuYXptYbg3USBMo";
 
 const GuruAI = {
   isTyping: false,
+  chatHistory: [],
 
   // Logged-in student ki details nikalna
   getLoggedInUser() {
@@ -17,14 +16,68 @@ const GuruAI = {
     }
   },
 
-  // Naam ke baad "Guru" lagane wala helper (e.g., "Vishal Guru", "Rajat Guru")
-  getFormattedGuruName() {
+  // Naam se pehchanna ki Girl hai ya Boy (Agar gender auto ho)
+  detectFemaleByName(firstName) {
+    const lower = firstName.toLowerCase();
+    
+    const maleExceptions = [
+      "aditya", "shiva", "krishna", "kanhaiya", "ravi", "shashi", 
+      "abhi", "mani", "hari", "gopal", "raja", "rana", "urya", "surya", "somya"
+    ];
+    if (maleExceptions.includes(lower)) return false;
+
+    const femaleNames = [
+      "priya", "neha", "pooja", "puja", "anjali", "ritu", "khushi", "sakshi",
+      "divya", "kavita", "sunita", "anita", "rekha", "sneha", "kriti", "preeti",
+      "priti", "swati", "arti", "aarti", "jyoti", "komal", "payal", "kajal",
+      "sonal", "anchal", "muskan", "simran", "tanu", "manu", "annu", "radha",
+      "shreya", "tanya", "anya", "riya", "siya", "diya", "nisha", "asha",
+      "usha", "meena", "reena", "seema", "alka", "nikita", "ankita", "ishita",
+      "harshita", "mansi", "shweta", "namrata", "amrita", "pallavi", "janvi",
+      "janhvi", "vaishnavi", "shivani", "himani", "chandni", "roshni", "nandini",
+      "shalini", "ragini", "damini", "kamini", "kumari", "devi", "garima", "mahima",
+      "pratima", "neelam", "poonam", "sonam", "punam", "shabnam", "parul", "charu"
+    ];
+    if (femaleNames.includes(lower)) return true;
+
+    if (
+      lower.endsWith("a") || 
+      lower.endsWith("i") || 
+      lower.endsWith("ee") || 
+      lower.endsWith("ya") || 
+      lower.endsWith("ti") || 
+      lower.endsWith("shi") || 
+      lower.endsWith("ni") || 
+      lower.endsWith("ka")
+    ) {
+      return true;
+    }
+
+    return false;
+  },
+
+  // Ladko ke liye "Vishal Guru", Ladkiyon ke liye "Priya Devi"
+  getFormattedTitleName() {
     const user = this.getLoggedInUser();
     if (user && user.name && user.name.trim()) {
-      const cleanName = user.name.trim();
-      const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-      // Agar user ne pehle se naam me Guru nahi likha hai to jod dein
-      return capitalized.toLowerCase().endsWith("guru") ? capitalized : `${capitalized} Guru`;
+      const firstName = user.name.trim().split(' ')[0];
+      const capitalized = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+
+      let isFemale = false;
+      if (user.gender === 'female') {
+        isFemale = true;
+      } else if (user.gender === 'male') {
+        isFemale = false;
+      } else {
+        isFemale = this.detectFemaleByName(firstName);
+      }
+
+      const honorific = isFemale ? "Devi" : "Guru";
+      
+      if (capitalized.toLowerCase().endsWith("guru") || capitalized.toLowerCase().endsWith("devi")) {
+        return capitalized;
+      }
+      return `${capitalized} ${honorific}`;
     }
     return "Guru";
   },
@@ -33,119 +86,95 @@ const GuruAI = {
     if (!userQuestion || !userQuestion.trim()) return;
     if (this.isTyping) return;
 
-    // 1. Check: Kya student ne login kiya hai?
+    // 1. Check Login
     const currentUser = this.getLoggedInUser();
     if (!currentUser) {
-      this.speak("🔒 Arey Guru! Mujhse sawal puchne aur guidance lene ke liye pehle apne Mobile Number aur Naam se Login kar lo!\n\nAll the best Guru! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱");
+      this.speak("🔒 Arey Guru! Pehle upar 'Mobile Login' button se apna naam daal kar login kar lo, fir aaram se baith kar baat karenge! 🔱");
       if (typeof openAuthModal === 'function') {
-        setTimeout(() => openAuthModal(), 1000);
+        setTimeout(() => openAuthModal(), 1200);
       }
       return;
     }
 
-    const studentTitle = this.getFormattedGuruName(); // e.g., "Vishal Guru" or "Rajat Guru"
+    const studentTitle = this.getFormattedTitleName(); // e.g., "Vishal Guru" or "Priya Devi"
     this.isTyping = true;
     this.showThinking();
 
-    const personalizedPrompt = `You are "Guru Ji", an affectionate, energetic Indian competitive exam mentor for SSC, Stenographer, Railway, UPSSSC, Police, and Defence exams.
-Strict Rules:
-1. ALWAYS address the student as "${studentTitle}" (for example: "Arey ${studentTitle}!", "Suno ${studentTitle}!"). Put "Guru" AFTER their name, never before.
-2. Answer all exam, study, syllabus, GK, Maths, Reasoning, English, Hindi, Steno, and career questions accurately in natural Hinglish (max 3-4 lines).
-3. MUST end every single message with this exact blessing: "All the best ${studentTitle}! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱"`;
+    const systemInstruction = `Tum "Guru Ji" ho — ek asli, desi, bade bhai/guru jaise sneh karne wale aur behad intelligent competitive exam mentor.
+Student ka sambodhan "${studentTitle}" hai.
 
-    // 2. LIVE CLOUD AI ENGINE
+Tumhara baat karne ka tarika:
+1. Bilkul natural insaan ki tarah Hinglish me baat karo. Kabhi bhi ratta-rataya ya robotic jawab mat do!
+2. Student ko baat-baat me aadar aur sneh se "${studentTitle}" keh kar hi bulao (Agar "${studentTitle}" me 'Devi' laga hai toh samajh jao student ladki hai, aur 'Guru' laga hai toh ladka hai—usi hisab se kriya/verb use karo jaise 'karti ho' ya 'karte ho').
+3. Agar student koi Maths, Reasoning, English, Hindi, Shorthand/Steno ya GK ka sawal puche, toh turant uska exact solution ya trick samjhao. Agar wo normal haal-chaal ya demotivation ki baat kare, toh uska hausla badhao.
+4. Jawab chhota, point-to-point aur mazedar rakho (3-4 lines).
+5. Baat ke aakhir me natural tarike se Mahadev se "${studentTitle}" ki sarkari job lagne ki prarthna/aashirwad do.`;
+
+    this.chatHistory.push({ role: "user", content: userQuestion });
+    if (this.chatHistory.length > 6) {
+      this.chatHistory.shift();
+    }
+
+    // 2. DIRECT LIVE AI CALL (Method A: POST with Memory)
     try {
-      const response = await fetch("https://text.pollinations.ai/", {
+      const response = await fetch("https://text.pollinations.ai/openai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          model: "openai",
           messages: [
-            { role: "system", content: personalizedPrompt },
-            { role: "user", content: userQuestion }
+            { role: "system", content: systemInstruction },
+            ...this.chatHistory
           ],
-          model: "openai"
+          temperature: 0.8
         })
       });
 
       if (response.ok) {
-        const aiText = await response.text();
-        if (aiText && aiText.trim().length > 5) {
+        const data = await response.json();
+        const aiReply = data.choices?.[0]?.message?.content;
+        if (aiReply) {
           this.isTyping = false;
-          this.speak(aiText.trim());
+          this.chatHistory.push({ role: "assistant", content: aiReply });
+          this.speak(aiReply.trim());
           return;
         }
       }
     } catch (err) {
-      console.warn("Primary Cloud AI busy, checking backup...");
+      console.warn("Switching to Direct GET Stream...");
     }
 
-    // 3. BACKUP: GOOGLE GEMINI API
+    // 3. BACKUP LIVE AI CALL (Method B: Simple GET URL)
     try {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_API_KEY}`;
-      const res = await fetch(geminiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: personalizedPrompt }] },
-          contents: [{ role: "user", parts: [{ text: userQuestion }] }]
-        })
-      });
+      const fullPrompt = `${systemInstruction}\n\nStudent (${studentTitle}) says: "${userQuestion}"\nGuru Ji's natural reply:`;
+      const encodedPrompt = encodeURIComponent(fullPrompt);
+      const randomSeed = Math.floor(Math.random() * 100000);
+      const url = `https://text.pollinations.ai/${encodedPrompt}?model=openai&seed=${randomSeed}`;
 
-      const data = await res.json();
-      if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-        this.isTyping = false;
-        this.speak(data.candidates[0].content.parts[0].text);
-        return;
+      const res = await fetch(url);
+      if (res.ok) {
+        const textReply = await res.text();
+        if (textReply && textReply.trim().length > 5) {
+          this.isTyping = false;
+          this.chatHistory.push({ role: "assistant", content: textReply.trim() });
+          this.speak(textReply.trim());
+          return;
+        }
       }
-    } catch (e) {
-      console.warn("Switching to Offline Guru Brain...");
+    } catch (err2) {
+      console.error("Network Error:", err2);
     }
 
-    // 4. OFFLINE FALLBACK
-    setTimeout(() => {
-      this.isTyping = false;
-      const reply = this.generateSmartReply(userQuestion.toLowerCase(), studentTitle);
-      this.speak(reply);
-    }, 400);
-  },
-
-  generateSmartReply(q, studentTitle) {
-    const blessing = `\n\nAll the best ${studentTitle}! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱`;
-
-    if (q.includes("ssc") || q.includes("cgl") || q.includes("chsl") || q.includes("mts") || q.includes("gd")) {
-      return `Arey ${studentTitle}! SSC crack karne ka sabse bada mantra hai—Previous Year Questions (PYP) par 100% pakad! Roz 1 full mock lagao aur apni galtiyon ki alag notebook banao.${blessing}`;
-    }
-    if (q.includes("steno") || q.includes("shorthand") || q.includes("dictation")) {
-      return `Suno ${studentTitle}! Steno me selection Reasoning, GS aur English ke dam par pakka hota hai, aur skill test me roz 2 ghante Rishi Pranali outlines aur dictation ki practice karo.${blessing}`;
-    }
-    if (q.includes("railway") || q.includes("ntpc") || q.includes("group d") || q.includes("rrb")) {
-      return `Arey ${studentTitle}! Railway NTPC aur Group D ke liye Maths, Reasoning aur General Science (NCERT) par sabse zyada focus rakho.${blessing}`;
-    }
-    if (q.includes("up") || q.includes("pet") || q.includes("police") || q.includes("ro") || q.includes("upsssc")) {
-      return `Suno ${studentTitle}! UP Exams ke liye Hindi, Static GK aur UP Special ko roz revise karo. Mock test me negative marking se bachna hi asli khel hai!${blessing}`;
-    }
-    if (q.includes("math") || q.includes("quant") || q.includes("calculation")) {
-      return `Arey ${studentTitle}! Maths me speed badhane ke liye 1 se 30 tak tables, squares aur cubes yaad rakho, aur roz 25 mixed questions timer laga kar solve karo.${blessing}`;
-    }
-    if (q.includes("reasoning") || q.includes("tarkshakti")) {
-      return `Arey ${studentTitle}! Reasoning to aapka scoring weapon hai! Number series, coding-decoding aur syllogism ke daily 1 set lagao, poore marks aayenge.${blessing}`;
-    }
-    if (q.includes("gk") || q.includes("gs") || q.includes("current")) {
-      return `Suno ${studentTitle}! GK/GS ke liye Static GK (Dance, Festivals, Articles) aur pichle 6 mahine ke Current Affairs ko bar-bar revise karo.${blessing}`;
-    }
-    if (q.includes("english") || q.includes("vocab")) {
-      return `Arey ${studentTitle}! English me PYP se daily 20 One-Word, Idioms aur Grammar rules padho, score rocket ki tarah badhega!${blessing}`;
-    }
-
-    return `Arey ${studentTitle}! Aapka sawal bilkul sahi hai. Kisi bhi exam ko fodne ke liye 3 cheezein pakad lo: Syllabus complete karo, roz PYP Mock lagao aur revision kabhi mat chhodo!${blessing}`;
+    this.isTyping = false;
+    this.speak(`Arey ${studentTitle}! Lagta hai aapka internet connection thoda weak ho gaya hai. Ek baar net check karke dobara puchiye! Har Har Mahadev! 🔱`);
   },
 
   showThinking() {
-    const studentTitle = this.getFormattedGuruName();
+    const studentTitle = this.getFormattedTitleName();
     const box = document.getElementById('guruSpeechBox');
     const text = document.getElementById('guruSpeechText');
     if (box && text) {
-      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">Guru Ji ${studentTitle} ke sawal par vichar kar rahe hain... 🔱</span>`;
+      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">🧘‍♂️ Guru Ji ${studentTitle} ke liye soch rahe hain...</span>`;
       box.classList.remove('hidden');
     }
   },
@@ -180,11 +209,11 @@ Strict Rules:
   },
 
   askExamGoal() {
-    const studentTitle = this.getFormattedGuruName();
-    this.speak(`Radhe Radhe ${studentTitle}! Batao abhi aap kis target exam (SSC, Steno, Railway, UPSSSC ya Defence) ki taiyari kar rahe ho? Niche box me koi bhi sawal pucho!\n\nAll the best ${studentTitle}! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱`);
+    const studentTitle = this.getFormattedTitleName();
+    this.askGuru(`Mera naam ${studentTitle} hai, mujhse haal-chaal pucho aur pucho ki aaj kaunse exam ka mock lagane ka plan hai?`);
   },
 
   randomTip() {
-    this.askGuru("Exam me negative marking se kaise bache aur speed kaise badhaye?");
+    this.askGuru("Mujhe aaj ki padhai ke liye ek tagda desi motivation aur exam tip do!");
   }
 };
