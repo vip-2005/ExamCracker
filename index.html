@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- FIREBASE AUTH SDKs (FOR REAL SMS OTP) -->
+  <!-- FIREBASE AUTH SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
@@ -83,7 +83,7 @@
             </button>
           </div>
 
-          <!-- Category Filters (Defence Included) -->
+          <!-- Category Filters -->
           <div class="space-y-1.5" id="categorySidebar">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1 block">Categories</span>
             
@@ -150,7 +150,7 @@
               </div>
             </div>
           </div>
-          <button onclick="GuruAI.speak('Har Har Mahadev Guru! Focus ke sath test attempt karo. Selection nishchit hoga!')" class="px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold flex items-center gap-2">
+          <button onclick="GuruAI.openAndAsk('Is exam ko pehli baar me crack karne ka mantra batao')" class="px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold flex items-center gap-2 cursor-pointer">
             <span>Ask Guru Ji</span> 🔱
           </button>
         </div>
@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <!-- AUTH MODAL WITH REAL SMS OTP & NAME SETUP -->
+  <!-- AUTH MODAL WITH OTP & NAME SETUP -->
   <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 border border-slate-200 shadow-2xl">
       <div class="flex justify-between items-center">
@@ -230,7 +230,7 @@
       <!-- Step 1: Mobile Number Entry -->
       <div id="authStep1" class="space-y-3">
         <p class="text-xs text-slate-500 leading-relaxed">
-          Apna 10-digit mobile number enter karein. Aapke phone par official SMS OTP aayega.
+          Apna 10-digit mobile number enter karein. Aapko turant live verification OTP milega.
         </p>
         <div>
           <label class="text-[11px] font-bold text-slate-600 block mb-1">Mobile Number</label>
@@ -240,10 +240,9 @@
           </div>
         </div>
         
-        <!-- Recaptcha Container for Firebase -->
-        <div id="recaptcha-container" class="flex justify-center my-2"></div>
+        <div id="recaptcha-container" class="flex justify-center my-1"></div>
 
-        <button onclick="requestOTP()" id="sendOtpBtn" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md">
+        <button onclick="requestOTP()" id="sendOtpBtn" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md cursor-pointer">
           Get Live OTP
         </button>
       </div>
@@ -251,7 +250,7 @@
       <!-- Step 2: OTP Verification & Student Name Entry -->
       <div id="authStep2" class="space-y-3 hidden">
         <p class="text-xs text-slate-500">
-          Mobile number <strong id="otpTargetMobile" class="text-slate-800 font-mono"></strong> par bheja gaya 6-digit OTP enter karein:
+          Mobile number <strong id="otpTargetMobile" class="text-slate-800 font-mono"></strong> ka 6-digit OTP enter karein:
         </p>
         <input type="text" id="otpEntryInput" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full text-center tracking-widest text-lg font-bold font-mono border border-slate-300 rounded-xl py-2 focus:outline-none focus:ring-2 focus:ring-sky-500">
         
@@ -260,7 +259,7 @@
           <input type="text" id="nameInput" placeholder="Jaise: Vishal Yadav" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
 
-        <button onclick="verifyAndLogin()" id="verifyOtpBtn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
+        <button onclick="verifyAndLogin()" id="verifyOtpBtn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer">
           Verify & Save Profile
         </button>
         <button onclick="resetAuthFlow()" class="w-full text-center text-[11px] text-slate-400 hover:underline font-bold">
@@ -270,18 +269,65 @@
     </div>
   </div>
 
-  <!-- "GURU JI" AI MENTOR WIDGET -->
+  <!-- "GURU JI" LIVE AI MENTOR WIDGET (WITH CHAT INPUT BOX) -->
   <div class="fixed bottom-5 right-5 z-40 flex flex-col items-end">
-    <div id="guruSpeechBox" class="bg-white border-2 border-amber-300 shadow-xl rounded-2xl p-3.5 max-w-xs mb-2 text-xs text-slate-800 space-y-1.5 transition-all">
-      <div class="flex justify-between items-center">
-        <span class="font-extrabold text-[11px] text-amber-600 font-mono">🔱 GURU JI AI MENTOR</span>
-        <button onclick="GuruAI.dismiss()" class="text-slate-400 hover:text-slate-600 font-bold text-[10px]">✕</button>
+    <!-- Chat & Speech Box -->
+    <div id="guruSpeechBox" class="bg-white border-2 border-amber-400 shadow-2xl rounded-2xl p-4 w-80 sm:w-96 mb-3 text-xs text-slate-800 space-y-3 transition-all">
+      
+      <!-- Header -->
+      <div class="flex justify-between items-center border-b border-amber-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🧘‍♂️</span>
+          <div>
+            <span class="font-black text-[11px] text-amber-600 font-mono tracking-wider block">🔱 GURU JI LIVE AI</span>
+            <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Online Mentor
+            </span>
+          </div>
+        </div>
+        <button onclick="GuruAI.dismiss()" class="text-slate-400 hover:text-slate-700 font-bold text-xs px-1.5 py-0.5 rounded hover:bg-slate-100 cursor-pointer">✕</button>
       </div>
-      <p id="guruSpeechText" class="leading-relaxed font-medium">
-        Radhe Radhe Guru! Mobile number se login kar lijiye taaki aapke marks aur mock drills hamesha surakshit rahein!
-      </p>
+
+      <!-- Guru Ji Reply Area -->
+      <div class="bg-amber-50/60 border border-amber-200/70 rounded-xl p-3 max-h-48 overflow-y-auto">
+        <p id="guruSpeechText" class="leading-relaxed font-medium text-slate-800 whitespace-pre-line">Radhe Radhe Guru! Kis exam ki taiyari kar rahe ho? Niche box me apna koi bhi sawal ya doubt likho!
+
+All the best Guru! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱</p>
+      </div>
+
+      <!-- Quick Doubt Chips -->
+      <div class="flex flex-wrap gap-1.5">
+        <button onclick="GuruAI.askGuru('SSC aur Steno ki best strategy batao')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-[10px] font-bold transition cursor-pointer">
+          📌 Steno/SSC Tips
+        </button>
+        <button onclick="GuruAI.askGuru('Mock test me score kaise badhaye?')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-[10px] font-bold transition cursor-pointer">
+          🚀 Boost Score
+        </button>
+        <button onclick="GuruAI.askGuru('Negative marking se kaise bache?')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 text-[10px] font-bold transition cursor-pointer">
+          🎯 Accuracy
+        </button>
+      </div>
+
+      <!-- Direct Question Input Box -->
+      <div class="flex items-center gap-2 pt-1 border-t border-slate-100">
+        <input 
+          type="text" 
+          id="guruUserInput" 
+          placeholder="Guru Ji se apna sawal puchein..." 
+          class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white font-medium"
+          onkeypress="if(event.key === 'Enter'){ const val = this.value.trim(); if(val){ GuruAI.askGuru(val); this.value=''; } }"
+        >
+        <button 
+          onclick="const inp = document.getElementById('guruUserInput'); if(inp && inp.value.trim()){ GuruAI.askGuru(inp.value.trim()); inp.value=''; }" 
+          class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer flex-shrink-0"
+        >
+          Pucho ➤
+        </button>
+      </div>
     </div>
-    <button onclick="GuruAI.randomTip()" class="w-13 h-13 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white shadow-lg shadow-orange-500/30 flex items-center justify-center text-2xl border-2 border-white hover:scale-105 transition-transform" title="Guru Ji se margdarshan lein">
+
+    <!-- Floating Avatar Button -->
+    <button onclick="GuruAI.toggleBox()" class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 text-white shadow-xl shadow-orange-500/40 flex items-center justify-center text-2xl border-2 border-white hover:scale-105 active:scale-95 transition-transform cursor-pointer" title="Guru Ji se puchiye">
       🧘‍♂️
     </button>
   </div>
