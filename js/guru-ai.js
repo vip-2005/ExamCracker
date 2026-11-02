@@ -1,5 +1,5 @@
 // ==============================================================
-// GURU JI 100% LIVE AI (BOYS = "NAME GURU" | GIRLS = "NAME DEVI")
+// GURU JI 100% LIVE AI (BOYS = "NAME GURU" | GIRLS = "NAME DEVI JI")
 // ==============================================================
 
 const GuruAI = {
@@ -56,7 +56,7 @@ const GuruAI = {
     return false;
   },
 
-  // Ladko ke liye "Vishal Guru", Ladkiyon ke liye "Priya Devi"
+  // Ladko ke liye "Vishal Guru", Ladkiyon ke liye "Priya Devi Ji"
   getFormattedTitleName() {
     const user = this.getLoggedInUser();
     if (user && user.name && user.name.trim()) {
@@ -72,9 +72,10 @@ const GuruAI = {
         isFemale = this.detectFemaleByName(firstName);
       }
 
-      const honorific = isFemale ? "Devi" : "Guru";
+      const honorific = isFemale ? "Devi Ji" : "Guru";
       
-      if (capitalized.toLowerCase().endsWith("guru") || capitalized.toLowerCase().endsWith("devi")) {
+      const lowerCap = capitalized.toLowerCase();
+      if (lowerCap.endsWith("guru") || lowerCap.endsWith("devi") || lowerCap.endsWith("devi ji")) {
         return capitalized;
       }
       return `${capitalized} ${honorific}`;
@@ -96,7 +97,7 @@ const GuruAI = {
       return;
     }
 
-    const studentTitle = this.getFormattedTitleName(); // e.g., "Vishal Guru" or "Priya Devi"
+    const studentTitle = this.getFormattedTitleName(); // e.g., "Vishal Guru" or "Priya Devi Ji"
     this.isTyping = true;
     this.showThinking();
 
@@ -105,7 +106,7 @@ Student ka sambodhan "${studentTitle}" hai.
 
 Tumhara baat karne ka tarika:
 1. Bilkul natural insaan ki tarah Hinglish me baat karo. Kabhi bhi ratta-rataya ya robotic jawab mat do!
-2. Student ko baat-baat me aadar aur sneh se "${studentTitle}" keh kar hi bulao (Agar "${studentTitle}" me 'Devi' laga hai toh samajh jao student ladki hai, aur 'Guru' laga hai toh ladka hai—usi hisab se kriya/verb use karo jaise 'karti ho' ya 'karte ho').
+2. Student ko baat-baat me aadar aur sneh se "${studentTitle}" keh kar hi bulao (Agar "${studentTitle}" me 'Devi Ji' laga hai toh samajh jao student ladki hai aur unse aadar-purvak 'karti hain / padhti hain' keh kar baat karo, aur 'Guru' laga hai toh ladka hai—usi hisab se baat karo).
 3. Agar student koi Maths, Reasoning, English, Hindi, Shorthand/Steno ya GK ka sawal puche, toh turant uska exact solution ya trick samjhao. Agar wo normal haal-chaal ya demotivation ki baat kare, toh uska hausla badhao.
 4. Jawab chhota, point-to-point aur mazedar rakho (3-4 lines).
 5. Baat ke aakhir me natural tarike se Mahadev se "${studentTitle}" ki sarkari job lagne ki prarthna/aashirwad do.`;
