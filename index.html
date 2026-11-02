@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <!-- AUTH MODAL WITH OTP & NAME SETUP -->
+  <!-- AUTH MODAL WITH OTP, NAME & GENDER SETUP -->
   <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 border border-slate-200 shadow-2xl">
       <div class="flex justify-between items-center">
@@ -247,7 +247,7 @@
         </button>
       </div>
 
-      <!-- Step 2: OTP Verification & Student Name Entry -->
+      <!-- Step 2: OTP Verification, Name & Gender Entry -->
       <div id="authStep2" class="space-y-3 hidden">
         <p class="text-xs text-slate-500">
           Mobile number <strong id="otpTargetMobile" class="text-slate-800 font-mono"></strong> ka 6-digit OTP enter karein:
@@ -256,7 +256,22 @@
         
         <div>
           <label class="text-[11px] font-bold text-slate-700 block mb-1">Aapka Poora Naam (Name)</label>
-          <input type="text" id="nameInput" placeholder="Jaise: Vishal Yadav" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="text" id="nameInput" placeholder="Jaise: Vishal / Priya" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <!-- Gender Selection for Guru / Devi Title -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-700 block mb-1">Select Title</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center justify-center gap-1.5 border border-slate-300 rounded-xl py-2 px-3 text-xs font-bold cursor-pointer hover:bg-sky-50 has-[:checked]:bg-sky-50 has-[:checked]:border-sky-500 has-[:checked]:text-sky-700">
+              <input type="radio" name="userGender" value="male" checked class="accent-sky-600">
+              <span>👦 Boy (Guru)</span>
+            </label>
+            <label class="flex items-center justify-center gap-1.5 border border-slate-300 rounded-xl py-2 px-3 text-xs font-bold cursor-pointer hover:bg-pink-50 has-[:checked]:bg-pink-50 has-[:checked]:border-pink-500 has-[:checked]:text-pink-700">
+              <input type="radio" name="userGender" value="female" class="accent-pink-600">
+              <span>👧 Girl (Devi)</span>
+            </label>
+          </div>
         </div>
 
         <button onclick="verifyAndLogin()" id="verifyOtpBtn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer">
@@ -290,9 +305,7 @@
 
       <!-- Guru Ji Reply Area -->
       <div class="bg-amber-50/60 border border-amber-200/70 rounded-xl p-3 max-h-48 overflow-y-auto">
-        <p id="guruSpeechText" class="leading-relaxed font-medium text-slate-800 whitespace-pre-line">Radhe Radhe Guru! Kis exam ki taiyari kar rahe ho? Niche box me apna koi bhi sawal ya doubt likho!
-
-All the best Guru! Mahadev se me kamna karta hu apki job lage. Har Har Mahadev! 🔱</p>
+        <p id="guruSpeechText" class="leading-relaxed font-medium text-slate-800 whitespace-pre-line">Radhe Radhe! Kis exam ki taiyari kar rahe ho? Niche box me apna koi bhi sawal ya doubt likho! 🔱</p>
       </div>
 
       <!-- Quick Doubt Chips -->
