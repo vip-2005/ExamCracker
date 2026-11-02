@@ -1,11 +1,9 @@
 // ==========================================
-// EXAM CRACKER - DYNAMIC LIVE OTP ENGINE
-// Har baar 100% naya random OTP + Full User Isolation
+// EXAM CRACKER - DYNAMIC LIVE OTP & GENDER-AWARE AUTH ENGINE
 // ==========================================
 
 let activeUser = null;
 let currentDynamicOtp = null;
-let otpExpiryTimer = null;
 
 // Page Load par session restore
 function restoreUserSession() {
@@ -20,20 +18,23 @@ function restoreUserSession() {
   updateAuthUI();
 }
 
-// Navbar par Student Name badge render karna
+// Navbar par Student Title Name (Vishal Guru / Priya Devi) render karna
 function updateAuthUI() {
   const container = document.getElementById('authActionsContainer');
   if (!container) return;
 
   if (activeUser) {
-    const displayName = activeUser.name || `Student (${activeUser.mobile.slice(-4)})`;
+    const displayName = (window.GuruAI && typeof GuruAI.getFormattedTitleName === 'function')
+      ? GuruAI.getFormattedTitleName()
+      : (activeUser.name || `Student (${activeUser.mobile.slice(-4)})`);
+
     container.innerHTML = `
       <div class="flex items-center gap-2">
         <div class="px-3.5 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold flex items-center gap-1.5 shadow-sm">
           <i data-lucide="user-check" class="w-3.5 h-3.5 text-sky-600"></i>
           <span>${displayName}</span>
         </div>
-        <button onclick="logoutUser()" class="px-2.5 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold" title="Logout">
+        <button onclick="logoutUser()" class="px-2.5 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold cursor-pointer" title="Logout">
           Logout
         </button>
       </div>
@@ -48,7 +49,7 @@ function updateAuthUI() {
   }
 
   if (window.lucide) {
-    try { lucide.createIcons(); } catch(e){}
+    try { lucide.createIcons(); } catch (e) {}
   }
 }
 
@@ -68,7 +69,7 @@ function resetAuthFlow() {
   const step2 = document.getElementById('authStep2');
   if (step1) step1.classList.remove('hidden');
   if (step2) step2.classList.add('hidden');
-  
+
   const mIn = document.getElementById('mobileInput');
   const nIn = document.getElementById('nameInput');
   const oIn = document.getElementById('otpEntryInput');
@@ -78,7 +79,7 @@ function resetAuthFlow() {
   currentDynamicOtp = null;
 }
 
-// HAR BAAR NAYA OTP GENERATE HOGA
+// HAR BAAR NAYA 6-DIGIT OTP GENERATE HOGA
 function requestOTP() {
   const mobile = document.getElementById('mobileInput').value.trim();
   if (mobile.length !== 10 || isNaN(mobile)) {
@@ -92,7 +93,7 @@ function requestOTP() {
     btn.innerText = "Dispatching OTP...";
   }
 
-  // Har bar naya 6-digit random number
+  // Har bar naya 6-digit random OTP
   currentDynamicOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
   setTimeout(() => {
@@ -105,20 +106,21 @@ function requestOTP() {
       btn.innerText = "Get Live OTP";
     }
 
-    // Live Dispatch Alert
     alert(`📲 [SMS GATEWAY DISPATCH]\n\nExamCracker Verification Code for +91 ${mobile} is: ${currentDynamicOtp}\n\nValid for 5 minutes.`);
 
     if (window.GuruAI) {
-      GuruAI.speak(`Guru! Naya OTP ${currentDynamicOtp} bhej diya gaya hai. Apna naam dalkar verify karein!`);
+      GuruAI.speak(`Naya OTP ${currentDynamicOtp} bhej diya gaya hai! Apna naam aur Guru/Devi select karke verify karein. 🔱`);
     }
   }, 400);
 }
 
-// OTP VERIFY KARNA AUR STUDENT NAME LINK KARNA
+// OTP VERIFY KARNA AUR STUDENT NAME + GENDER LINK KARNA
 function verifyAndLogin() {
   const enteredOtp = document.getElementById('otpEntryInput').value.trim();
   const mobile = document.getElementById('mobileInput').value.trim();
   const studentName = document.getElementById('nameInput').value.trim();
+  const genderRadio = document.querySelector('input[name="userGender"]:checked');
+  const selectedGender = genderRadio ? genderRadio.value : 'auto';
 
   if (!enteredOtp || enteredOtp.length !== 6) {
     alert("Kripya 6-digit OTP enter karein!");
@@ -135,20 +137,22 @@ function verifyAndLogin() {
     return;
   }
 
-  // Session create
+  // Session create with gender
   activeUser = {
     mobile: mobile,
-    name: studentName
+    name: studentName,
+    gender: selectedGender
   };
 
   localStorage.setItem('ec_active_session', JSON.stringify(activeUser));
-  currentDynamicOtp = null; // OTP expire after successful use
+  currentDynamicOtp = null;
 
   updateAuthUI();
   closeAuthModal();
 
   if (window.GuruAI) {
-    GuruAI.speak(`Swagat hai Guru ${studentName}! Account successfully verify ho gaya. Ab aapke saare mocks aapke naam par save rahenge! 🔱`);
+    const titleName = GuruAI.getFormattedTitleName();
+    GuruAI.speak(`Swagat hai ${titleName}! Account successfully verify ho gaya hai. Ab aap mujhse koi bhi sawal puch sakte hain aur aapke saare mocks surakshit rahenge. Har Har Mahadev! 🔱`);
   }
 }
 
@@ -158,7 +162,10 @@ function logoutUser() {
     activeUser = null;
     updateAuthUI();
     if (typeof showScreen === 'function') showScreen('home');
-    if (window.GuruAI) GuruAI.speak("Guru aapka session successfully logout ho gaya.");
+    if (window.GuruAI) {
+      GuruAI.chatHistory = [];
+      GuruAI.speak("Aapka session successfully logout ho gaya hai. Har Har Mahadev! 🔱");
+    }
   }
 }
 
@@ -185,7 +192,7 @@ function getUserAttempts() {
 function checkAuthAndShowAttempted() {
   if (!activeUser) {
     openAuthModal();
-    if (window.GuruAI) GuruAI.speak("Guru! Apne attempted tests dekhne ke liye pehle mobile login karein.");
+    if (window.GuruAI) GuruAI.speak("Apne attempted tests dekhne ke liye pehle mobile login kar lijiye! 🔱");
     return;
   }
   if (typeof showScreen === 'function') showScreen('attempted');
