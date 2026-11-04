@@ -1,20 +1,19 @@
 // ==============================================================
-// GURU JI FULL-BRAIN AI ENGINE (HIGH-INTELLIGENCE + UNRESTRICTED)
+// GURU JI LIVE AI ENGINE (GITHUB PAGES & MOBILE CORS-FREE EDITION)
 // ==============================================================
 
 const GuruAI = {
   isTyping: false,
   chatHistory: [],
 
-  // Official Exam Knowledge Base
-  examFactsheet: `
-Important Indian Exam Patterns (Use when asked about pattern/syllabus):
-- SSC MTS: 90 Qs, 270 Marks, 90 Mins. Session-1: Maths (20 Q) + Reasoning (20 Q) [Qualifying, No Negative]. Session-2: GA/GK (25 Q, 75 Marks) + English (25 Q, 75 Marks) [Merit based on Session-2, -1 mark negative].
-- SSC Stenographer (Grade C & D): 200 Qs, 200 Marks, 120 Mins, -0.25 negative. Reasoning (50 Q), GA/GK (50 Q), English (100 Q). No Maths! Skill test: 80 wpm (Grade D), 100 wpm (Grade C) Shorthand.
-- SSC CGL / CHSL Tier-1: 100 Qs, 200 Marks, 60 Mins, -0.50 negative. Maths (25), Reasoning (25), English (25), GK (25).
-- SSC GD: 80 Qs, 160 Marks, 60 Mins, -0.25 negative. Maths (20), Reasoning (20), GK (20), Hindi/English (20).
-- UPSSSC PET: 100 Qs, 100 Marks, 120 Mins, -0.25 negative.
-- RRB NTPC CBT-1: 100 Qs, 100 Marks, 90 Mins, -1/3 negative. GA (40), Maths (30), Reasoning (30).`,
+  // Short & Verified Exam Pattern Sheet
+  examFactsheet: `Official Patterns:
+- SSC MTS: 90 Qs, 270 Marks, 90 Mins. Session-1: Maths(20Q)+Reasoning(20Q) [Qualifying, No Negative]. Session-2: GK(25Q, 75M)+English(25Q, 75M) [Merit on Session-2, -1 negative].
+- SSC Steno (C & D): 200 Qs, 200 Marks, 2 Hrs, -0.25 negative. Reasoning(50Q), GK(50Q), English(100Q). No Maths! Skill: 80/100 wpm Shorthand.
+- SSC CGL/CHSL Tier-1: 100 Qs, 200 Marks, 60 Mins, -0.50 negative (Maths 25, Reasoning 25, English 25, GK 25).
+- SSC GD: 80 Qs, 160 Marks, 60 Mins, -0.25 negative (20 Q each: Maths, Reasoning, GK, Hindi/Eng).
+- UPSSSC PET: 100 Qs, 100 Marks, 2 Hrs, -0.25 negative.
+- RRB NTPC CBT-1: 100 Qs, 100 Marks, 90 Mins, -1/3 negative (GA 40, Maths 30, Reasoning 30).`,
 
   getLoggedInUser() {
     try {
@@ -87,58 +86,69 @@ Important Indian Exam Patterns (Use when asked about pattern/syllabus):
     this.isTyping = true;
     this.showThinking();
 
-    // Rich, intelligent mentor prompt (No artificial 3-line restriction)
-    const systemInstruction = `You are "Guru Ji", a highly intelligent, warm, and deeply knowledgeable AI Mentor (just like Google Gemini) for Indian students.
-The student talking to you is "${studentTitle}".
-
+    const systemInstruction = `Tum "Guru Ji" ho, India ke top competitive exam mentor. Student ka naam "${studentTitle}" hai.
 ${this.examFactsheet}
-
-How you must respond:
-1. Language: Speak in natural conversational Hinglish (Hindi written in English alphabets, e.g., "Dekho ${studentTitle}, is sawal ko aise samjho..."). Never reply in pure formal English.
-2. Intelligence: Give complete, well-structured, smart, and accurate answers. If asked a Maths/Reasoning question, solve it step-by-step with a short trick. If asked a GK/GS or English question, explain the concept clearly with bullet points.
-3. Tone: Friendly, motivating, and natural like a real human teacher talking to "${studentTitle}".
-4. Closing: Naturally wish them success with Mahadev's blessings at the end.`;
+Rules:
+1. Hamesha natural Hinglish (Hindi in English script) me baat karo. Pure English mat bolo.
+2. Student ko pyar se "${studentTitle}" keh kar bulao.
+3. Har sawal (Maths, Reasoning, GK, English, Steno, Strategy) ka bilkul sahi, step-by-step aur smart jawab do.
+4. Aakhir me Mahadev ka aashirwad do ki "${studentTitle}" ki sarkari job jaldi lage.`;
 
     this.chatHistory.push({ role: "user", content: userQuestion });
-    if (this.chatHistory.length > 8) {
+    if (this.chatHistory.length > 6) {
       this.chatHistory.shift();
     }
 
-    // Try High-Intelligence Models in sequence
-    const modelsToTry = ["openai-large", "mistral", "openai"];
+    // METHOD 1: CORS-Safe Simple POST Request (No Preflight Block on GitHub Pages)
+    try {
+      const response = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=UTF-8" // Bypasses strict mobile CORS preflight
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: systemInstruction },
+            ...this.chatHistory
+          ],
+          model: "openai"
+        })
+      });
 
-    for (const modelName of modelsToTry) {
-      try {
-        const response = await fetch("https://text.pollinations.ai/openai", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: modelName,
-            messages: [
-              { role: "system", content: systemInstruction },
-              ...this.chatHistory
-            ],
-            temperature: 0.6
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const aiReply = data.choices?.[0]?.message?.content;
-          if (aiReply && aiReply.trim().length > 10) {
-            this.isTyping = false;
-            this.chatHistory.push({ role: "assistant", content: aiReply.trim() });
-            this.speak(aiReply.trim());
-            return;
-          }
+      if (response.ok) {
+        const aiText = await response.text();
+        if (aiText && aiText.trim().length > 5 && !aiText.includes("<!DOCTYPE")) {
+          this.isTyping = false;
+          this.chatHistory.push({ role: "assistant", content: aiText.trim() });
+          this.speak(aiText.trim());
+          return;
         }
-      } catch (e) {
-        console.warn(`Model ${modelName} busy, trying next...`);
       }
+    } catch (e) {
+      console.warn("Method 1 fallback:", e);
+    }
+
+    // METHOD 2: Clean Short GET Endpoint (100% immune to CORS on all mobile browsers)
+    try {
+      const shortPrompt = `You are Guru Ji (Indian Exam Mentor). Address student as ${studentTitle}. Reply in Hinglish only. (${this.examFactsheet}). Question: ${userQuestion}`;
+      const url = `https://text.pollinations.ai/${encodeURIComponent(shortPrompt)}?model=openai&seed=${Date.now() % 10000}`;
+
+      const res = await fetch(url);
+      if (res.ok) {
+        const textReply = await res.text();
+        if (textReply && textReply.trim().length > 5) {
+          this.isTyping = false;
+          this.chatHistory.push({ role: "assistant", content: textReply.trim() });
+          this.speak(textReply.trim());
+          return;
+        }
+      }
+    } catch (e2) {
+      console.warn("Method 2 fallback:", e2);
     }
 
     this.isTyping = false;
-    this.speak(`Arey ${studentTitle}! Server par thoda traffic zyada hai, ek baar dobara 'Pucho' button dabao! Har Har Mahadev! 🔱`);
+    this.speak(`Arey ${studentTitle}! Mobile network thoda slow lag raha hai, ek baar dobara 'Pucho' dabao! Har Har Mahadev! 🔱`);
   },
 
   showThinking() {
@@ -146,7 +156,7 @@ How you must respond:
     const box = document.getElementById('guruSpeechBox');
     const text = document.getElementById('guruSpeechText');
     if (box && text) {
-      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">🧘‍♂️ Guru Ji ${studentTitle} ke sawal ka vishleshan kar rahe hain...</span>`;
+      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">🧘‍♂️ Guru Ji ${studentTitle} ke sawal ka jawab likh rahe hain...</span>`;
       box.classList.remove('hidden');
     }
   },
@@ -155,7 +165,6 @@ How you must respond:
     const box = document.getElementById('guruSpeechBox');
     const text = document.getElementById('guruSpeechText');
     if (!box || !text) return;
-    // Clean markdown stars if any for neat reading
     text.innerText = message.replace(/\*\*/g, '');
     box.classList.remove('hidden');
   },
@@ -183,10 +192,15 @@ How you must respond:
 
   askExamGoal() {
     const studentTitle = this.getFormattedTitleName();
-    this.askGuru(`Namaste Guru Ji! Mera naam ${studentTitle} hai. Mujhse pucho ki meri taiyari kaisi chal rahi hai aur aaj kaunsa topic padhna hai.`);
+    this.askGuru(`Namaste Guru Ji! Mera naam ${studentTitle} hai. Mujhse pucho ki meri taiyari kaisi chal rahi hai.`);
   },
 
   randomTip() {
-    this.askGuru("Mujhe competitive exam crack karne ki ek practical strategy aur motivation batao.");
+    this.askGuru("Exam me accuracy aur speed badhane ka sabse best tarika batao.");
   }
 };
+
+// Navbar ka naam update karna jaise hi GuruAI load ho
+if (typeof updateAuthUI === 'function') {
+  updateAuthUI();
+}
